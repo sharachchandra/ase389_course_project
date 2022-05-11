@@ -1,4 +1,4 @@
-class DummyShield:
+class DummyShield():
 
 	def __init__(self):
 		print("Initializing a dummy shield")
