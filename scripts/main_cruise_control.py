@@ -3,7 +3,7 @@ import gym
 
 import gym_cruise_control
 
-env = gym.make("cruisecontrol-v0")
+env = gym.make("cruisecontrol-v1")
 env.reset()
 
 for i in range(10):

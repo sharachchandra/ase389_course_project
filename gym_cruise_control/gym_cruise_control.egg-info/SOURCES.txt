@@ -7,3 +7,4 @@ gym_cruise_control.egg-info/requires.txt
 gym_cruise_control.egg-info/top_level.txt
 gym_cruise_control/envs/__init__.py
 gym_cruise_control/envs/cruise_control.py
+gym_cruise_control/envs/cruise_control1.py

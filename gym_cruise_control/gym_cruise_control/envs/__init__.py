@@ -1,1 +1,2 @@
 from gym_cruise_control.envs.cruise_control import CruiseControl
+from gym_cruise_control.envs.cruise_control1 import CruiseControl1
