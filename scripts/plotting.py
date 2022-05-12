@@ -8,6 +8,7 @@ from mpl_toolkits.mplot3d import Axes3D
 
 EpisodeStats = namedtuple("Stats",["episode_lengths", "episode_rewards"])
 TestStats_cc = namedtuple("TestStats_cc",["rel_dis", "rel_dis_noisy", "rel_vel", "rel_acc", "reward", "max_steps"])
+TestStats_pm = namedtuple("TestStats_pm",["pacman", "ghost"])
 
 def plot_cost_to_go_mountain_car(env, estimator, num_tiles=20):
     x = np.linspace(env.observation_space.low[0], env.observation_space.high[0], num=num_tiles)
@@ -117,6 +118,25 @@ def plot_test_stats_cc(stats, smoothing_window=10, noshow=False):
     axes[1].set_title("Reward accumulated over time")
     axes[1].set_xlim([0, stats.max_steps])
     axes[1].grid()
+    if noshow:
+        plt.close(fig)
+    else:
+        plt.show(fig)
+
+    return fig
+
+def plot_test_stats_pm(stats, smoothing_window=10, noshow=False):
+    # Plot the episode length over time
+    fig, axes = plt.subplots(1,1)
+    axes.plot(*zip(*stats.pacman), label = 'Pacman path')
+    axes.plot(*zip(*stats.ghost), label = 'Ghost path')
+    axes.set_xlabel("X-Axis")
+    axes.set_ylabel("Y-Axis")
+    axes.set_title("Paths")
+    axes.set_xlim([-1, 5])
+    axes.set_xlim([-1, 5])
+    axes.legend()
+
     if noshow:
         plt.close(fig)
     else:

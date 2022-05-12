@@ -122,3 +122,30 @@ def q_learning_test_cc(env, Q, epsilon = 0.1):
             break
 
     return stats
+
+def q_learning_test_pm(env, Q, epsilon = 0.1):
+    policy = make_epsilon_greedy_policy(Q, epsilon, env.action_space.n)
+    state = env.reset()
+    stats = plotting.TestStats_pm(pacman=[],
+                                  ghost=[])
+
+    done = False
+    # reward_to_go = 0
+    while not done:
+        # action_probs = policy(state)
+        # action = np.random.choice(np.arange(len(action_probs)), p=action_probs)
+        action = 1
+        state, reward, done, info = env.step(action)
+        # reward_to_go += reward
+
+        stats.pacman.append(info["pacman"])
+        stats.ghost.append(info["ghost"])
+        # stats.rel_dis_noisy.append(info["rel_dis_noisy"])
+        # stats.rel_vel.append(info["rel_vel"])
+        # stats.rel_acc.append(info["rel_acc"])
+        # stats.reward.append(reward_to_go)    
+
+        if done:
+            break
+
+    return stats
