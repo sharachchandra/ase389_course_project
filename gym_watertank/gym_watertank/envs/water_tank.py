@@ -4,8 +4,8 @@ import math
 import random
 import numpy as np
 
-from no_shield import DummyShield
-from shield import Shield 
+from gym_watertank.envs.no_shield import DummyShield
+from gym_watertank.envs.shield import Shield 
 
 class WaterTank(gym.Env):
 
@@ -22,14 +22,14 @@ class WaterTank(gym.Env):
 		self.state_mapper = {}
 		for state_val in range(1,100):
 			for switch_state in self.switch_states:
-				state_num = len(state_mapper)
+				state_num = len(self.state_mapper)
 				self.state_mapper[(state_val, switch_state)] = state_num
 
 		# Add error state to the state mapper. 
 		# The error state is the last state of the state mapper
 
-		self.error_state = len(state_mapper)
-		self.error_state_key = (-1, 0)
+		self.error_state = len(self.state_mapper)
+		error_state_key = (-1, 0)
 		self.state_mapper[error_state_key] = self.error_state
 
 		# creating a reverse state mapper for easier lookup
@@ -114,19 +114,19 @@ class WaterTank(gym.Env):
 		for state_val in range(0,101):
 			rewards_list.append(-1 * state_val * (1 + math.sin(state_val * 0.4 + 0.5) * 0.95))
 
-		norm_max = max(normlist)
-		norm_min = min(normlist)
+		rmax = max(rewards_list)
+		rmin = min(rewards_list)
 
 
 		self.state_to_reward_mapper = {self.error_state : -2.0}
 		for state_val in range(0,101):
 			for switch_state in self.transition_switch_states:
-				reward_for_state_val = (2 * ((-1 * state_val * (1 + math.sin(state_val * 0.4 + 0.5) * 0.95)) - norm_min)/(norm_max - norm_min)) - 1
+				reward_for_state_val = (2 * ((-1 * state_val * (1 + math.sin(state_val * 0.4 + 0.5) * 0.95)) - rmin)/(rmax - rmin)) - 1
 				self.state_to_reward_mapper[self.state_mapper[(state_val, switch_state)]] = reward_for_state_val 
 
 
 		self.transition_lists = {}
-		for (a, b, c, d) in transitions:
+		for (a, b, c, d) in self.transitions:
 			if not (a, b) in self.transition_lists:
 				self.transition_lists[(a, b)] = [(c, d)]
 			else:
@@ -153,7 +153,6 @@ class WaterTank(gym.Env):
 
 		# There are only two allowed actions - Open (True) and Close (False)
 
-		reward = 0 
 		done = False
 
 		(state_val, switch_state) = self.reverse_state_mapper[self.state]
@@ -162,7 +161,7 @@ class WaterTank(gym.Env):
 		if action not in allowed_actions:
 			action = random.choice(allowed_actions)
 
-		possible_transitions = self.transition_lists[(state, action)]
+		possible_transitions = self.transition_lists[(self.state, action)]
 
 
 		next_state = None
@@ -179,11 +178,16 @@ class WaterTank(gym.Env):
 		next_state = possible_transitions[choice][0]
 		self.state = next_state 
 
+		reward = self.state_to_reward_mapper[self.state]
 		if next_state == self.error_state:
-			reward = self.state_to_reward_mapper[self.state_mapper[(state_val, switch_state)]]
+			#reward = -2
 			done = True
 
-		return self.state, reward, done, _
+		
+		#print("reward : ", reward)
+
+
+		return self.state, reward, done, None
 
 	def reset(self):
 

@@ -1,4 +1,5 @@
 import gym
 import gym_watertank
 
-gym.make('watertank-v0')
+env = gym.make('watertank-v0', use_shield=False)
+
