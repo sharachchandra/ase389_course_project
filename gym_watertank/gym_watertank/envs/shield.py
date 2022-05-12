@@ -5,7 +5,7 @@ class Shield:
         print("The shielded actions function returns the set of safe actions in a state")
 
 
-    def tick(self, state_val, switch_state):
+    def shielded_actions(self, state_val, switch_state):
         # always returns a list
         if 1 <= state_val <= 3 and switch_state == 1: 
             return [1]
