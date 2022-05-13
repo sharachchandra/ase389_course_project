@@ -144,7 +144,7 @@ class WaterTank(gym.Env):
 
 		# shield
 		if use_shield:
-			self.shield = Shield()
+			self.shield = Shield('/home/saisai/ase389/shield-in-action/course_project/water_tank/water_tank_shield.npy')
 		else:
 			self.shield = DummyShield()
 		
