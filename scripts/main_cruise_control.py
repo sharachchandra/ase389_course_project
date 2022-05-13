@@ -7,7 +7,7 @@ import plotting
 
 env_name = "cruisecontrol-v1"
 env = gym.make(env_name)
-env.activate_shield(True)
+env.activate_shield(False)
 env.reset()
 
 if env_name == "cruisecontrol-v0":

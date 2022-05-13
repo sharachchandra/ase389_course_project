@@ -70,19 +70,9 @@ class Pacman1(gym.Env):
             return self.trans_stay(state) # Only for pacman and not for ghost (adversary)
 
     def step(self, action):
-        
-        action_ghost = np.random.randint(0, self.n_action - 1) # ghost cannot stay in place
-        self.ghost = self.trans(self.ghost, action_ghost)
-        
+
+        # The action is taken based on the current state and hence pacman position should change first in step
         state  = (*self.pacman, *self.ghost)
-        info   = {'pacman': tuple(reversed(self.pacman)),
-                  'ghost' : tuple(reversed(self.ghost))}
-        if self.ghost == self.pacman:
-            print('eaten')
-            reward = -1
-            done   = True
-            return state, reward, done, info
-        
         shielded_actions = self.shield.shielded_actions(state)
         if self.shield_active:
             if action in shielded_actions:
@@ -96,6 +86,18 @@ class Pacman1(gym.Env):
         state  = (*self.pacman, *self.ghost)
         if self.pacman == self.goal:
             reward = 1
+            done   = True
+            return state, reward, done, info
+
+        action_ghost = np.random.randint(0, self.n_action - 1) # ghost cannot stay in place
+        self.ghost = self.trans(self.ghost, action_ghost)
+        
+        state  = (*self.pacman, *self.ghost)
+        info   = {'pacman': tuple(reversed(self.pacman)),
+                  'ghost' : tuple(reversed(self.ghost))}
+        if self.ghost == self.pacman:
+            print('eaten')
+            reward = -1
             done   = True
             return state, reward, done, info
         
