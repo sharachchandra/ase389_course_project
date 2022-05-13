@@ -1,6 +1,8 @@
+from queue import Empty
 import gym
 
 import numpy as np
+from gym_cruise_control.envs.shield import Shield
 
 class CruiseControl(gym.Env):
     def __init__(self):
@@ -18,11 +20,28 @@ class CruiseControl(gym.Env):
         
         self.max_fv_acc = 1
 
+        self.max_episode_steps = 100
+
+        self.shield = Shield('gym_cruise_control/gym_cruise_control/envs/cruise_control_shield.npy')
+        self.shield_active = False
+
+    def activate_shield(self, val = True):
+        self.shield_active = val
+
     def step(self, action):
+        
         acc_ego = action + self.min_acc
+
+        shielded_actions = self.shield.shielded_actions(self.rel_dis, self.rel_vel)
+        if self.shield_active:
+            if acc_ego in shielded_actions:
+                pass
+            elif len(shielded_actions):
+                acc_ego = np.random.choice(shielded_actions)
+
         acc_fv  = np.random.randint(-self.max_fv_acc, self.max_fv_acc + 1)
+        # acc_fv = 0
         rel_acc = acc_fv - acc_ego
-        print(acc_ego, acc_fv, rel_acc)
 
         if self.rel_vel + rel_acc > self.max_vel:
             if self.rel_vel < self.max_vel:
@@ -39,7 +58,7 @@ class CruiseControl(gym.Env):
         self.rel_dis  = self.rel_dis + delta_rel_dis
         self.rel_vel  = self.rel_vel + rel_acc
 
-        print(self.rel_dis, self.rel_vel)
+        rel_dis_noisy = self.rel_dis
 
         state = (self.rel_dis - self.min_dis, 
                  self.rel_vel - self.min_vel)
@@ -47,20 +66,26 @@ class CruiseControl(gym.Env):
         reward = -delta_rel_dis # Positive reward for decrease in relative distance
         
         if self.rel_dis < 5:
-            reward -= 10
+            reward -= 20
         
+        self.episode_steps += 1
         done = False
-        if self.rel_dis >= 25 or self.rel_dis <= 0:
+        if self.rel_dis >= 25 or self.rel_dis <= 0 or self.episode_steps > self.max_episode_steps:
             done = True
-        info = {}
+        info = {
+                'rel_dis': self.rel_dis,
+                'rel_dis_noisy': rel_dis_noisy,
+                'rel_vel': self.rel_vel,
+                'rel_acc': rel_acc
+                }
 
         return state, reward, done, info
 
     def reset(self):
         self.rel_dis = 15
         self.rel_vel = 0
+        self.episode_steps = 0
         
         state = (self.rel_dis, self.rel_vel)
-        print(self.rel_dis, self.rel_vel)
         return state
 
