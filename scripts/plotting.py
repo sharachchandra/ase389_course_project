@@ -1,4 +1,5 @@
 from cProfile import label
+from sre_parse import State
 import matplotlib
 import numpy as np
 import pandas as pd
@@ -8,7 +9,7 @@ from mpl_toolkits.mplot3d import Axes3D
 
 EpisodeStats = namedtuple("Stats",["episode_lengths", "episode_rewards"])
 TestStats_cc = namedtuple("TestStats_cc",["rel_dis", "rel_dis_noisy", "rel_vel", "rel_acc", "reward", "max_steps"])
-TestStats_pm = namedtuple("TestStats_pm",["pacman", "ghost"])
+TestStats_pm = namedtuple("TestStats_pm",["pacman", "ghost", "reward"])
 
 def plot_cost_to_go_mountain_car(env, estimator, num_tiles=20):
     x = np.linspace(env.observation_space.low[0], env.observation_space.high[0], num=num_tiles)
@@ -85,6 +86,7 @@ def plot_episode_stats(stats, smoothing_window=10, noshow=False):
     else:
         plt.show(fig2)
 
+    np.save('data/train1', rewards_smoothed)
     # Plot time steps and episode number
     fig3 = plt.figure(figsize=(10,5))
     plt.plot(np.cumsum(stats.episode_lengths), np.arange(len(stats.episode_lengths)))
@@ -118,6 +120,9 @@ def plot_test_stats_cc(stats, smoothing_window=10, noshow=False):
     axes[1].set_title("Reward accumulated over time")
     axes[1].set_xlim([0, stats.max_steps])
     axes[1].grid()
+
+    np.save('data/rel_dis1', stats.rel_dis)
+    np.save('data/reward1', stats.reward)
     if noshow:
         plt.close(fig)
     else:
@@ -130,11 +135,13 @@ def plot_test_stats_pm(stats, smoothing_window=10, noshow=False):
     fig, axes = plt.subplots(1,1)
     axes.plot(*zip(*stats.pacman), label = 'Pacman path')
     axes.plot(*zip(*stats.ghost), label = 'Ghost path')
+    axes.plot(*stats.pacman[-1], marker='o',color='blue')
+    axes.plot(*stats.ghost[-1], marker='o',color='orange')
     axes.set_xlabel("X-Axis")
     axes.set_ylabel("Y-Axis")
     axes.set_title("Paths")
     axes.set_xlim([-1, 5])
-    axes.set_xlim([-1, 5])
+    axes.set_ylim([-1, 5])
     axes.legend()
 
     if noshow:

@@ -1,6 +1,8 @@
+from queue import Empty
 import gym
 
 import numpy as np
+from gym_cruise_control.envs.shield import Shield
 
 class CruiseControl(gym.Env):
     def __init__(self):
@@ -20,11 +22,26 @@ class CruiseControl(gym.Env):
 
         self.max_episode_steps = 100
 
+        self.shield = Shield('gym_cruise_control/gym_cruise_control/envs/cruise_control_shield.npy')
+        self.shield_active = False
+
+    def activate_shield(self, val = True):
+        self.shield_active = val
+
     def step(self, action):
+        
         acc_ego = action + self.min_acc
+
+        shielded_actions = self.shield.shielded_actions(self.rel_dis, self.rel_vel)
+        if self.shield_active:
+            if acc_ego in shielded_actions:
+                pass
+            elif len(shielded_actions):
+                acc_ego = np.random.choice(shielded_actions)
+
         acc_fv  = np.random.randint(-self.max_fv_acc, self.max_fv_acc + 1)
+        # acc_fv = 0
         rel_acc = acc_fv - acc_ego
-        # print(acc_ego, acc_fv, rel_acc)
 
         if self.rel_vel + rel_acc > self.max_vel:
             if self.rel_vel < self.max_vel:
@@ -70,6 +87,5 @@ class CruiseControl(gym.Env):
         self.episode_steps = 0
         
         state = (self.rel_dis, self.rel_vel)
-        # print(self.rel_dis, self.rel_vel)
         return state
 

@@ -29,7 +29,7 @@ def make_epsilon_greedy_policy(Q, epsilon, nA):
         return A
     return policy_fn
 
-def q_learning(env, num_episodes, discount_factor=1.0, alpha=0.5, epsilon=0.1):
+def q_learning(env, num_episodes, discount_factor=1.0, alpha=0.5, epsilon=0.1, shield = False):
     """
     Q-Learning algorithm: Off-policy TD control. Finds the optimal greedy policy
     while following an epsilon-greedy policy
@@ -94,7 +94,7 @@ def q_learning(env, num_episodes, discount_factor=1.0, alpha=0.5, epsilon=0.1):
     
     return Q, stats
 
-def q_learning_test_cc(env, Q, epsilon = 0.1):
+def q_learning_test_cc(env, Q, epsilon = 0.1, shield=False):
     policy = make_epsilon_greedy_policy(Q, epsilon, env.action_space.n)
     state = env.reset()
     stats = plotting.TestStats_cc(rel_dis=[],
@@ -127,23 +127,20 @@ def q_learning_test_pm(env, Q, epsilon = 0.1):
     policy = make_epsilon_greedy_policy(Q, epsilon, env.action_space.n)
     state = env.reset()
     stats = plotting.TestStats_pm(pacman=[],
-                                  ghost=[])
+                                  ghost=[],
+                                  reward=[])
 
     done = False
-    # reward_to_go = 0
+    reward_to_go = 0
     while not done:
-        # action_probs = policy(state)
-        # action = np.random.choice(np.arange(len(action_probs)), p=action_probs)
-        action = 1
+        action_probs = policy(state)
+        action = np.random.choice(np.arange(len(action_probs)), p=action_probs)
         state, reward, done, info = env.step(action)
-        # reward_to_go += reward
+        reward_to_go += reward
 
         stats.pacman.append(info["pacman"])
         stats.ghost.append(info["ghost"])
-        # stats.rel_dis_noisy.append(info["rel_dis_noisy"])
-        # stats.rel_vel.append(info["rel_vel"])
-        # stats.rel_acc.append(info["rel_acc"])
-        # stats.reward.append(reward_to_go)    
+        stats.reward.append(reward_to_go)    
 
         if done:
             break

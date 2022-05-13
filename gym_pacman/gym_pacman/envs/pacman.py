@@ -1,12 +1,12 @@
 import gym
-
+from gym_cruise_control.envs.shield import Shield
 import numpy as np
 
 class Pacman(gym.Env):
     def __init__(self):
         super().__init__()
 
-        self.n_action = 4
+        self.n_action = 5
         self.action_space = gym.spaces.Discrete(self.n_action)
         
         self.n = 5
@@ -15,6 +15,12 @@ class Pacman(gym.Env):
 
         self.max_episode_steps = 100
         self.goal = 24
+    
+        self.shield = Shield('gym_pacman/gym_pacman/envs/pacman_shield.npy')
+        self.shield_active = False
+
+    def activate_shield(self, val = True):
+        self.shield_active = val
 
     def trans_right(self, state):
         q, r = divmod(state, self.n)
@@ -54,6 +60,9 @@ class Pacman(gym.Env):
 
         return next_state
 
+    def trans_stay(self, state):
+        return state
+
     def trans(self, state, action):
         if action < 0 or action >= self.n_action:
             raise ValueError("Action value out of bounds")
@@ -68,18 +77,18 @@ class Pacman(gym.Env):
             return self.trans_down(state)
         if action == 3:
             return self.trans_left(state)
+        if action == 4:
+            return self.trans_stay(state) # Only for pacman and not for ghost (adversary)
         
     def state_to_grid(self, state):
         return tuple(reversed(divmod(state, self.n)))
 
     def step(self, action):
         
-        action_ghost = np.random.randint(0, self.n_action)
-        # action_ghost = 0
+        action_ghost = np.random.randint(0, self.n_action - 1) # ghost cannot stay in place
         self.ghost = self.trans(self.ghost, action_ghost)
         
         state  = (self.pacman, self.ghost)
-        print(state)
         info   = {'pacman': self.state_to_grid(self.pacman),
                   'ghost' : self.state_to_grid(self.ghost)}
         if self.ghost == self.pacman:
