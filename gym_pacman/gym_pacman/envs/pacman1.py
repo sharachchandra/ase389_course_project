@@ -18,7 +18,7 @@ class Pacman1(gym.Env):
         self.max_episode_steps = 100
         self.goal = (4,4)
     
-        self.shield = Shield('gym_pacman/gym_pacman/envs/pacman1_shield.npy')
+        self.shield = Shield('gym_pacman/gym_pacman/envs/prob_shield_pacman.npy')
         self.shield_active = False
 
     def activate_shield(self, val = True):

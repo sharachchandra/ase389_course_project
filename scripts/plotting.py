@@ -86,7 +86,7 @@ def plot_episode_stats(stats, smoothing_window=10, noshow=False):
     else:
         plt.show(fig2)
 
-    np.save('data/train1', rewards_smoothed) #################################################
+    np.save('data/train3', rewards_smoothed) #################################################
     # Plot time steps and episode number
     fig3 = plt.figure(figsize=(10,5))
     plt.plot(np.cumsum(stats.episode_lengths), np.arange(len(stats.episode_lengths)))
@@ -142,6 +142,7 @@ def plot_test_stats_pm(stats, smoothing_window=10, noshow=False):
     axes.set_title("Paths")
     axes.set_xlim([-1, 5])
     axes.set_ylim([-1, 5])
+    axes.grid()
     axes.legend()
 
     if noshow:
